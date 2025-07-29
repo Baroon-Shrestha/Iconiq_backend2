@@ -26,7 +26,7 @@ const adminLogin = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -53,10 +53,14 @@ const adminMe = (req, res) => {
   }
 };
 
-const signOut = (req, res, next) => {
-  res.status(200).clearCookie("token").json({
-    message: "Signed Out.",
+const signOut = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
   });
+
+  res.status(200).json({ message: "Signed out successfully." });
 };
 
 module.exports = { adminLogin, signOut, adminMe };
